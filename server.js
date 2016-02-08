@@ -15,7 +15,7 @@ console.log('server listening on port ' + PORT);
 // Event called after the HTTP Server is created
 // on server started we can load client.html page
 function handler(req, res){
-  fs.readFile(__dirname + '/client1.html', function(err, data){
+  fs.readFile(__dirname + '/client.html', function(err, data){
     if (err) {
       console.log(err);
       res.writeHead(500);
