@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Push notification server </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <hr>
+  <div class="container-fluid">
+      <div class="jumbotron"><h1>Temperature and Pressure</h1></div>
+      <div class="row">
+        <div class="col-sm-4">Pressure: <pressure> --- </pressure>cmH<sub>2</sub>O <pGlyph></pGlyph></div>
+        <div class="col-sm-4">Temperature: <temperature> --- </temperature> Deg C <tGlyph></tGlyph></div>
+      </div>
+      <div class="row">
+          <div class="col-sm-4"><time></time></div>
+      </div>
+  </div>
+  <script src="socket.io/socket.io.js"></script>
+  <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  <script>
+  //create new web socket
+  var socket = io.connect('http://192.168.1.19:8000');
+  var oldTemperature = 0.0;
+  var oldPressure = 0.0
+  var newPressure = 0.0;
+  var newTemperature = 0.0;
+  //on every message received, we print the new data inside the container
+  socket.on('notification', function(data){
+    //convert JSON to valid javascript object
+    var _data = JSON.parse(data);
+    // Create HTML
+    oldPressure = newPressure;
+    newPressure = _data.test.pressure;
+
+    if (Math.abs(oldPressure) - Math.abs(newPressure) < 0.001) {
+        $('pGlyph').html("<span class=\"glyphicon glyphicon-arrow-right\"></span>");
+    } else if (oldPressure > newPressure) {
+        $('pGlyph').html("<span class=\"glyphicon glyphicon-arrow-down\"></span>");
+    } else {
+        $('pGlyph').html("<span class=\"glyphicon glyphicon-arrow-up\"></span>");
+    }
+    
+
+    oldTemperature = newTemperature;
+    newTemperature = _data.test.temperature;
+/*
+      if (oldTemperature > newTemperature) {
+        $('tGlyph').html("<span class=\"glyphicon glyphicon-arrow-down\"></span>");
+    }
+    else if (oldPressure < newPressure) {
+        $('tGlyph').html("<span class=\"glyphicon glyphicon-arrow-up\"></span>");
+    }
+    else {
+        $('tGlyph').html("<span class=\"glyphicon glyphicon-arrow-right\"></span>");
+    }
+*/
+
+    //$('pGlyph').html("<span class=\"glyphicon glyphicon-arrow-right\"></span>");
+    $('container').html(_data.test.sample);
+    $('pressure').html(newPressure);
+    $('temperature').html(newTemperature);
+    $('time').html('Last Update:' + new Date());
+
+  });
+  </script>
+</body>
+</html>
